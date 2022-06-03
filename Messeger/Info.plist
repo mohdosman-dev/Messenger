@@ -2,10 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>${PRODUCT_NAME} Need access to Your Library to Update Profile Image</string>
-	<key>NSCameraUsageDescription</key>
-	<string>${PRODUCT_NAME} Need access to Camera to Update Profile Image</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb749493699546531</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1053499205659-0hdj96jp83b3ngi559m15sl2a9k8gi6h</string>
+			</array>
+		</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>749493699546531</string>
+	<key>FacebookClientToken</key>
+	<string>1d5b40f7c70c3c9f2093c6a4f9c79456</string>
+	<key>FacebookDisplayName</key>
+	<string>ChatApp</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

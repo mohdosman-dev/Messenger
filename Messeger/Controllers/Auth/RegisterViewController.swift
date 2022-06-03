@@ -6,12 +6,13 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class RegisterViewController: UIViewController {
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(systemName: "person")
+        imageView.image = UIImage(systemName: "person.circle")
         imageView.tintColor = .gray
         imageView.contentMode = .scaleAspectFit
         return imageView
@@ -178,7 +179,32 @@ class RegisterViewController: UIViewController {
             return
         }
         
-        // Firebase Login
+        // Check user exists
+        DatabaseManager.shared.userExists(with: email, complition: {[weak self]exists in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard !exists else {
+                // User registered
+                strongSelf.alertUserRegisterError(message: "Looks like a user account for email \(email) already exists")
+                return
+            }
+            
+            
+            // Firebase Register
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
+               
+                guard  authResult != nil, error == nil else {
+                    print("Error creating user \(String(describing: error))")
+                    return
+                }
+                let chatAppUser:ChatAppUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
+                DatabaseManager.shared.insertUser(with: chatAppUser)
+                strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            } )
+        })
+        
         
     }
     
@@ -186,9 +212,9 @@ class RegisterViewController: UIViewController {
         presentPhotoActionSheet()
     }
     
-    private func alertUserRegisterError() {
+    private func alertUserRegisterError(message: String = "Please enter all information") {
         let alert = UIAlertController(title: "Woops",
-                                      message: "Please enter all information",
+                                      message: message,
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss",
                                       style: .cancel,
