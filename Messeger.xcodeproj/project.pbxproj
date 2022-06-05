@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		043FCC94284ADB8000FE0B9E /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043FCC93284ADB8000FE0B9E /* ChatViewController.swift */; };
 		0444DA2D28477DC3006BBB8B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0444DA2C28477DC3006BBB8B /* GoogleService-Info.plist */; };
 		04C02DF0284790D800F0D28E /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04C02DEF284790D800F0D28E /* DatabaseManager.swift */; };
 		04F9D91228464CB60056FF5B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D91128464CB60056FF5B /* AppDelegate.swift */; };
@@ -22,7 +23,7 @@
 		04F9D94A284650320056FF5B /* RegisterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D949284650320056FF5B /* RegisterViewController.swift */; };
 		04F9D94C284650610056FF5B /* PhotoViewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D94B284650610056FF5B /* PhotoViewerViewController.swift */; };
 		04F9D94E284650750056FF5B /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D94D284650750056FF5B /* VideoPlayerViewController.swift */; };
-		04F9D950284650D50056FF5B /* NewConversationViewControllerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D94F284650D50056FF5B /* NewConversationViewControllerViewController.swift */; };
+		04F9D950284650D50056FF5B /* NewConversationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D94F284650D50056FF5B /* NewConversationViewController.swift */; };
 		04F9D952284650DF0056FF5B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D951284650DF0056FF5B /* ProfileViewController.swift */; };
 		04F9D955284667CB0056FF5B /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04F9D954284667CB0056FF5B /* Extensions.swift */; };
 		938CCAD9CFE6842475029312 /* Pods_Messeger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7029B35A3E7D63646995E328 /* Pods_Messeger.framework */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		043FCC93284ADB8000FE0B9E /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		0444DA2C28477DC3006BBB8B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		046B163A284A94190078D35B /* Messeger.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Messeger.entitlements; sourceTree = "<group>"; };
 		04C02DEF284790D800F0D28E /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
@@ -68,7 +70,7 @@
 		04F9D949284650320056FF5B /* RegisterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterViewController.swift; sourceTree = "<group>"; };
 		04F9D94B284650610056FF5B /* PhotoViewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewerViewController.swift; sourceTree = "<group>"; };
 		04F9D94D284650750056FF5B /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
-		04F9D94F284650D50056FF5B /* NewConversationViewControllerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewControllerViewController.swift; sourceTree = "<group>"; };
+		04F9D94F284650D50056FF5B /* NewConversationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewConversationViewController.swift; sourceTree = "<group>"; };
 		04F9D951284650DF0056FF5B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		04F9D954284667CB0056FF5B /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0DAD5F7003A3ABCF83E26835 /* Pods_MessegerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MessegerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -171,8 +173,9 @@
 				04F9D953284651EC0056FF5B /* Auth */,
 				04F9D94B284650610056FF5B /* PhotoViewerViewController.swift */,
 				04F9D94D284650750056FF5B /* VideoPlayerViewController.swift */,
-				04F9D94F284650D50056FF5B /* NewConversationViewControllerViewController.swift */,
+				04F9D94F284650D50056FF5B /* NewConversationViewController.swift */,
 				04F9D951284650DF0056FF5B /* ProfileViewController.swift */,
+				043FCC93284ADB8000FE0B9E /* ChatViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -502,7 +505,8 @@
 				04F9D91428464CB60056FF5B /* SceneDelegate.swift in Sources */,
 				04F9D952284650DF0056FF5B /* ProfileViewController.swift in Sources */,
 				04F9D94C284650610056FF5B /* PhotoViewerViewController.swift in Sources */,
-				04F9D950284650D50056FF5B /* NewConversationViewControllerViewController.swift in Sources */,
+				043FCC94284ADB8000FE0B9E /* ChatViewController.swift in Sources */,
+				04F9D950284650D50056FF5B /* NewConversationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

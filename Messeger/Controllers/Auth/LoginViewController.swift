@@ -7,8 +7,11 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class LoginViewController: UIViewController {
+    
+    private let snipper = JGProgressHUD(style: .dark)
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -123,11 +126,15 @@ class LoginViewController: UIViewController {
             alertUserLoginError()
             return
         }
-        
+        // Show Snipper
+        snipper.show(in: view)
         // Firebase Login
         FirebaseAuth.Auth.auth().signIn( withEmail: email, password: password, completion: {[weak self] authResult, error in
             guard let strongSelf = self else {
                 return
+            }
+            DispatchQueue.main.async {
+                strongSelf.snipper.dismiss(animated: true)
             }
             guard let result = authResult, error == nil else {
                 print("Cannot login to \(email)")
