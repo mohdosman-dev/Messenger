@@ -194,13 +194,35 @@ class RegisterViewController: UIViewController {
             
             // Firebase Register
             FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
-               
+                
                 guard  authResult != nil, error == nil else {
                     print("Error creating user \(String(describing: error))")
                     return
                 }
                 let chatAppUser:ChatAppUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
-                DatabaseManager.shared.insertUser(with: chatAppUser)
+                DatabaseManager.shared.insertUser(with: chatAppUser, completion: {success in
+                    if success {
+                        // Upload profile image here
+                        guard let image = strongSelf.imageView.image,
+                              let data = image.pngData() else {
+                            print("Image not picked")
+                            return
+                        }
+                        
+                        let fileName = chatAppUser.profilePictureUrl
+                        StorageManager.shared.uploadProfilePicture(with: data, fileName: fileName,
+                                                                   complition: {result in
+                            switch result {
+                            case .success(let url):
+                                UserDefaults.standard.setValue(url, forKey: "profile_picture_url")
+                                print("\(url)")
+                            case .failure(let error):
+                                print("Error is \(error)")
+                            }
+                        })
+                        
+                    }
+                })
                 strongSelf.navigationController?.dismiss(animated: true, completion: nil)
             } )
         })
