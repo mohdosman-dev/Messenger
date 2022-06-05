@@ -1,4 +1,12 @@
 PODS:
+  - FBAEMKit (12.3.2):
+    - FBSDKCoreKit_Basics (= 12.3.2)
+  - FBSDKCoreKit (12.3.2):
+    - FBAEMKit (= 12.3.2)
+    - FBSDKCoreKit_Basics (= 12.3.2)
+  - FBSDKCoreKit_Basics (12.3.2)
+  - FBSDKLoginKit (12.3.2):
+    - FBSDKCoreKit (= 12.3.2)
   - Firebase/Auth (9.1.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 9.1.0)
@@ -136,6 +144,7 @@ PODS:
   - SDWebImage/Core (5.12.5)
 
 DEPENDENCIES:
+  - FBSDKLoginKit
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Database
@@ -147,6 +156,10 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - FBAEMKit
+    - FBSDKCoreKit
+    - FBSDKCoreKit_Basics
+    - FBSDKLoginKit
     - Firebase
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -175,6 +188,10 @@ SPEC REPOS:
     - SDWebImage
 
 SPEC CHECKSUMS:
+  FBAEMKit: 955ca52eba8219c20f90774e8c6ff8bc7b3192a3
+  FBSDKCoreKit: 678f64eda3f0ff25c189c2ebbfe87b1d96a85a6d
+  FBSDKCoreKit_Basics: 6bee7c1f0932432901781203fa5e587ec5099148
+  FBSDKLoginKit: 56d55e23fe66a6db045826190b0b4dbc0e1ca0a0
   Firebase: 91c243d75573ac6e7c9735ec859b72bffb61347d
   FirebaseAnalytics: bf11064790ac96804df1df9ddc0ae45af950d9fc
   FirebaseAppCheckInterop: 39f963659691a896a4f16065c00183f128ab5d46
@@ -202,6 +219,6 @@ SPEC CHECKSUMS:
   RealmSwift: 271de77b09a73c5e46ee3252283878153bd5d288
   SDWebImage: 0905f1b7760fc8ac4198cae0036600d67478751e
 
-PODFILE CHECKSUM: 2146165ea9d32b7e226c174c619c0d86d84c1e41
+PODFILE CHECKSUM: b52f50a1ab1e2eb93ed4129a7a41228f26eb735a
 
 COCOAPODS: 1.11.3

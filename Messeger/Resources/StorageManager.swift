@@ -16,10 +16,11 @@ final class StorageManager {
      /images/user-email-com_profile_picture.png
      */
     
-    public typealias UploadPictureComplition = (Result<String, Error>) -> Void
+    public typealias StorageCompletion = (Result<String, Error>) -> Void
     
     /// Upload user profile image and get url
-    public func uploadProfilePicture(with data: Data, fileName: String, complition: @escaping  UploadPictureComplition) {
+    public func uploadProfilePicture(with data: Data, fileName: String,
+                                     complition: @escaping  StorageCompletion) {
         storage.child("/images/\(fileName)").putData(data, completion: {metadata, error in
             guard error == nil else {
                 print("Error while uplaoding profile picture")
@@ -40,7 +41,20 @@ final class StorageManager {
         })
     }
     
-    enum  StorageError: Error {
+    public func getDownloadURL(for path:String, completion: @escaping (Result<URL, Error>) -> Void) {
+        let refrence = self.storage.child(path)
+        refrence.downloadURL(completion: {url, error in
+            guard let url = url, error == nil else {
+                print("Cannot get url picture: \(error)")
+                completion(.failure(StorageError.DownloadURLError))
+                return
+            }
+            
+            completion(.success(url))
+        })
+    }
+    
+    enum StorageError: Error {
         case UploadError
         case DownloadURLError
     }

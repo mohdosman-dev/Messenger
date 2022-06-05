@@ -7,8 +7,11 @@
 
 import UIKit
 import FirebaseAuth
+import JGProgressHUD
 
 class RegisterViewController: UIViewController {
+    
+    private let spinner = JGProgressHUD()
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -166,6 +169,7 @@ class RegisterViewController: UIViewController {
         emailField.resignFirstResponder()
         firstNameField.resignFirstResponder()
         lastNameField.resignFirstResponder()
+        spinner.show(in: view)
         guard let email = emailField.text,
               let password = passwordField.text,
               let firstName = firstNameField.text,
@@ -193,11 +197,14 @@ class RegisterViewController: UIViewController {
             
             
             // Firebase Register
-            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { authResult, error in
+            FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: {[weak self] authResult, error in
                 
-                guard  authResult != nil, error == nil else {
+                guard let strongSelf = self,  authResult != nil, error == nil else {
                     print("Error creating user \(String(describing: error))")
                     return
+                }
+                DispatchQueue.main.async {
+                    strongSelf.spinner.dismiss(animated: true)
                 }
                 let chatAppUser:ChatAppUser = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: email)
                 DatabaseManager.shared.insertUser(with: chatAppUser, completion: {success in

@@ -136,6 +136,9 @@ class LoginViewController: UIViewController {
             DispatchQueue.main.async {
                 strongSelf.snipper.dismiss(animated: true)
             }
+            
+            UserDefaults.standard.setValue(email, forKey: "email")
+            
             guard let result = authResult, error == nil else {
                 print("Cannot login to \(email)")
                 return
