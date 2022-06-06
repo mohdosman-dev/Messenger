@@ -16,7 +16,7 @@ final class DatabaseManager {
     
 }
 
-// MARK - Account Management
+// MARK: - Account Management
 extension DatabaseManager {
     
     public func userExists(with email:String,
@@ -101,6 +101,171 @@ extension DatabaseManager {
     
     public enum DatabaseErrors: Error {
         case failedToFetch
+    }
+}
+
+
+// MARK: - Sending messages / conversations
+extension DatabaseManager {
+    
+    /// Create a new converation
+    public func createNewConversation(with otherUserEmail: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+        guard let currentEmail = UserDefaults.standard.value(forKey: "email") as? String else {
+            return
+        }
+        let safeEmail = DatabaseManager.getSafeEmail(emailAddress: currentEmail)
+        let ref = database.child("\(safeEmail)")
+        ref.observeSingleEvent(of: .value, with: {snapshot in
+            guard var userNode = snapshot.value as? [String: Any] else {
+                print("Cannot get user")
+                completion(false)
+                return
+            }
+            
+            let stringDate = ChatViewController.dateFormatter.string(from: firstMessage.sentDate)
+            
+            var message = ""
+            switch firstMessage.kind {
+                
+            case .text(let msg):
+                message = msg
+            case .attributedText(_):
+                break
+            case .photo(_):
+                break
+            case .video(_):
+                break
+            case .location(_):
+                break
+            case .emoji(_):
+                break
+            case .audio(_):
+                break
+            case .contact(_):
+                break
+            case .custom(_):
+                break
+            }
+            let conversationID = "conversation_\(firstMessage.messageId)"
+            let newConversation: [String: Any] = [
+                "id": conversationID,
+                "other_user_email": otherUserEmail,
+                "latest_message": [
+                    "date": stringDate,
+                    "is_read": false,
+                    "message": message,
+                ]
+            ]
+            
+            if var conversations = userNode["conversations"] as? [[String: Any]] {
+                // Conversation exists
+                // append new message
+                conversations.append(newConversation)
+                userNode["conversations"] = conversations
+                
+                ref.setValue(userNode, withCompletionBlock: {[weak self] error, result in
+                    guard error == nil else {
+                        print("Failed to add conversation")
+                        completion(false)
+                        return
+                    }
+                    self?.finishCreateConversation(conversationID: conversationID,
+                                                   firstMessage: firstMessage,
+                                                   completion: completion)
+                })
+            } else {
+                // Conversation doesn't exist
+                // Create new one
+                userNode["conversations"] = [
+                    newConversation
+                ]
+                
+                ref.setValue(userNode, withCompletionBlock: {[weak self] error, result in
+                    guard error == nil else {
+                        print("Failed to add conversation")
+                        completion(false)
+                        return
+                    }
+                    self?.finishCreateConversation(conversationID: conversationID,
+                                                   firstMessage: firstMessage,
+                                                   completion: completion)
+                    
+                })
+            }
+        })
+        
+    }
+    
+    private func finishCreateConversation(conversationID: String, firstMessage: Message, completion: @escaping (Bool) -> Void) {
+        
+        
+        let stringDate = ChatViewController.dateFormatter.string(from: firstMessage.sentDate)
+        
+        
+        var messageString = ""
+        switch firstMessage.kind {
+        case .text(let msg):
+            messageString = msg
+        case .attributedText(_):
+            break
+        case .photo(_):
+            break
+        case .video(_):
+            break
+        case .location(_):
+            break
+        case .emoji(_):
+            break
+        case .audio(_):
+            break
+        case .contact(_):
+            break
+        case .custom(_):
+            break
+        }
+        
+        guard let curretEmail = UserDefaults.standard.value(forKey: "email") as? String else {
+            completion(false)
+            return
+        }
+        
+//        let safeEmail = DatabaseManager.getSafeEmail(emailAddress: curretEmail)
+        let safeConversationID = DatabaseManager.getSafeEmail(emailAddress: conversationID)
+        
+        let message: [String:Any] = [
+            "id": firstMessage.messageId,
+            "type": firstMessage.kind.messageKindString,
+            "content":messageString,
+            "date": stringDate,
+            "sender_email": curretEmail,
+            "is_read": false,
+        ]
+        let value: [[String: Any]] = [
+            message
+        ]
+        database.child(safeConversationID).setValue(value,  withCompletionBlock: {error, _ in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+            
+            completion(true)
+        })
+    }
+    
+    /// Get all convetsations
+    public func getAllConversations(for email: String, completion: @escaping (Result<[[String:Any]], Error>) -> Void) {
+        
+    }
+    
+    /// Get all messages in conversation
+    public func getAllMessages(with id: String, completion: @escaping (Result<[[String:Any]], Error>) -> Void) {
+        
+    }
+    
+    /// Send message to conversation
+    public func sendMessage(to id: String, message: Message, completion: @escaping (Bool) -> Void) {
+        
     }
 }
 

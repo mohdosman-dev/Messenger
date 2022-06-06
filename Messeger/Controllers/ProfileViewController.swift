@@ -113,6 +113,7 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource {
                     return
                 }
                 try  FirebaseAuth.Auth.auth().signOut()
+                UserDefaults.standard.removeObject(forKey: "email")
                 
                 let vc = LoginViewController()
                 let nav = UINavigationController(rootViewController: vc)

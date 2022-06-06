@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import JGProgressHUD
+import FBSDKLoginKit
 
 class LoginViewController: UIViewController {
     
@@ -66,7 +67,15 @@ class LoginViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         return button
     }()
-
+    
+    private let facebookLoginButton: FBLoginButton = {
+        let button = FBLoginButton()
+        button.permissions = ["public_profile", "email"]
+        return button
+    }()
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Log In"
@@ -80,6 +89,7 @@ class LoginViewController: UIViewController {
         loginButton.addTarget(self,
                               action: #selector(loginTapped),
                               for: .touchUpInside)
+        facebookLoginButton.delegate = self
         
         
         emailField.delegate = self
@@ -91,6 +101,7 @@ class LoginViewController: UIViewController {
         scrollView.addSubview(emailField)
         scrollView.addSubview(passwordField)
         scrollView.addSubview(loginButton)
+        scrollView.addSubview(facebookLoginButton)
     }
     
     override func viewDidLayoutSubviews() {
@@ -111,9 +122,14 @@ class LoginViewController: UIViewController {
                                      width: scrollView.width-60,
                                      height: 52)
         loginButton.frame = CGRect(x: 30,
-                                     y: passwordField.bottom + 10,
-                                     width: scrollView.width-60,
-                                     height: 52)
+                                   y: passwordField.bottom + 10,
+                                   width: scrollView.width-60,
+                                   height: 52)
+        
+        facebookLoginButton.frame = CGRect(x: 30,
+                                           y: loginButton.bottom + 10,
+                                           width: scrollView.width-60,
+                                           height: 52)
         
     }
     
@@ -138,6 +154,8 @@ class LoginViewController: UIViewController {
             }
             
             UserDefaults.standard.setValue(email, forKey: "email")
+            let em = UserDefaults.standard.value(forKey: "email") as? String ?? "Not defiend"
+            print("Login email is: \(em)")
             
             guard let result = authResult, error == nil else {
                 print("Cannot login to \(email)")
@@ -165,7 +183,7 @@ class LoginViewController: UIViewController {
         vc.title = "Create Account"
         navigationController?.pushViewController(vc, animated: true)
     }
-
+    
 }
 
 extension LoginViewController: UITextFieldDelegate {
@@ -177,4 +195,67 @@ extension LoginViewController: UITextFieldDelegate {
         }
         return true
     }
+}
+
+extension LoginViewController: LoginButtonDelegate {
+    func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
+        
+    }
+    
+    func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
+        guard let token = result?.token?.tokenString else {
+            return
+        }
+        print("token: \(token)")
+        
+        
+        let facebookRequest = FBSDKLoginKit.GraphRequest(graphPath: "me",
+                                                         parameters: ["fields": "email,name"],
+                                                         tokenString: token,
+                                                         version: nil,
+                                                         httpMethod: .get)
+        
+        facebookRequest.start(completion: {_, result, error in
+            guard let result = result as? [String: Any], error == nil else {
+                print("Failed to gragh data: \(String(describing: error))")
+                return
+            }
+            
+            guard let userName = result["name"] as? String,
+                  let userEmail = result["email"] as? String else {
+                print("Cannot fetch data")
+                return
+            }
+            
+            let nameComponents = userName.components(separatedBy: " ")
+            guard nameComponents.count == 2 else {
+                return
+            }
+            
+            let firstName = nameComponents[0]
+            let lastName = nameComponents[1]
+            
+            DatabaseManager.shared.userExists(with: userEmail, complition: {exists in
+                if !exists {
+                    let user = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: userEmail)
+                    DatabaseManager.shared.insertUser(with: user, completion: {success in
+                        
+                    })
+                }
+            })
+        })
+        
+        let credential = FacebookAuthProvider.credential(withAccessToken: token)
+        FirebaseAuth.Auth.auth().signIn(with: credential, completion: {[weak self] authResult, error in
+            guard let strongSelf = self, authResult != nil, error == nil else {
+                if error != nil {
+                    print("Login Failed with facebook credentials: \(String(describing: error))")
+                }
+                return
+            }
+            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+        })
+    }
+    
+    
 }

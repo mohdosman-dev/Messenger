@@ -12,6 +12,8 @@ class NewConversationViewController: UIViewController {
     
     private let spinner = JGProgressHUD()
     
+    public var completion: (([String:Any]) -> (Void))?
+    
     private var users: [[String: Any]] = [[String: Any]]()
     private var results: [[String: Any]] = [[String: Any]]()
     private var hasFetched = false
@@ -93,6 +95,10 @@ extension NewConversationViewController: UITableViewDataSource,
         tableView.deselectRow(at: indexPath, animated: true)
         
         // Open new conversation
+        let tergetedUser = results[indexPath.row]
+        dismiss(animated: true, completion: {
+            self.completion?(tergetedUser)
+        })
     }
 }
 
