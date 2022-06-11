@@ -60,6 +60,7 @@ class ChatViewController: MessagesViewController {
     }()
     
     public let otherSenderEmail: String
+    public let conversationId: String?
     
     public var isNewConversation = false
     
@@ -76,9 +77,13 @@ class ChatViewController: MessagesViewController {
     } ()
     
     
-    init(with email: String) {
+    init(with email: String, id: String?) {
         self.otherSenderEmail = email
+        self.conversationId = id
         super.init(nibName: nil, bundle: nil)
+        if let convId = conversationId {
+            listenForMessages(with: convId)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -92,12 +97,30 @@ class ChatViewController: MessagesViewController {
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         messageInputBar.delegate = self
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         messageInputBar.inputTextView.becomeFirstResponder()
+    }
+    
+    private func listenForMessages(with id:String) {
+        DatabaseManager.shared.getAllMessages(with: id, completion: {[weak self] result in
+            switch result {
+                
+            case .success(let fetchedMessages):
+                guard !fetchedMessages.isEmpty else {
+                    return
+                }
+                
+                self?.messages = fetchedMessages
+                DispatchQueue.main.async {
+                    self?.messagesCollectionView.reloadDataAndKeepOffset()
+                }
+            case .failure(let error):
+                print("Error while fetching messages: \(error)")
+            }
+        })
     }
 }
 
@@ -119,7 +142,9 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
                                   messageId: messageId,
                                   sentDate: Date(),
                                   kind: .text(text))
-            DatabaseManager.shared.createNewConversation(with: self.otherSenderEmail,
+            let safeEmail = DatabaseManager.getSafeEmail(emailAddress: self.otherSenderEmail)
+            DatabaseManager.shared.createNewConversation(with: safeEmail,
+                                                         name: self.title ?? "User",
                                                          firstMessage: message,
                                                          completion: {success in
                 

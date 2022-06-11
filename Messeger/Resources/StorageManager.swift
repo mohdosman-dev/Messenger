@@ -45,7 +45,7 @@ final class StorageManager {
         let refrence = self.storage.child(path)
         refrence.downloadURL(completion: {url, error in
             guard let url = url, error == nil else {
-                print("Cannot get url picture: \(error)")
+                print("Cannot get url picture: \(String(describing: error))")
                 completion(.failure(StorageError.DownloadURLError))
                 return
             }
@@ -55,7 +55,10 @@ final class StorageManager {
     }
     
     enum StorageError: Error {
+        /// Cannot upload image to firebase
         case UploadError
+        
+        /// Cannot get uploaded image into firebase
         case DownloadURLError
     }
     

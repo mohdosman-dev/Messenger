@@ -210,7 +210,7 @@ extension LoginViewController: LoginButtonDelegate {
         
         
         let facebookRequest = FBSDKLoginKit.GraphRequest(graphPath: "me",
-                                                         parameters: ["fields": "email,name"],
+                                                         parameters: ["fields": "id,first_name,last_name,email,picture.type(large)"],
                                                          tokenString: token,
                                                          version: nil,
                                                          httpMethod: .get)
@@ -221,39 +221,71 @@ extension LoginViewController: LoginButtonDelegate {
                 return
             }
             
-            guard let userName = result["name"] as? String,
+            guard let firstName = result["first_name"] as? String,
+                  let lastName = result["last_name"] as? String,
+                  let picture = result["picture"] as? [String:Any],
+                  let data = picture["data"] as? [String:Any],
+                  let pictureUrl = data["url"] as? String,
                   let userEmail = result["email"] as? String else {
                 print("Cannot fetch data")
                 return
             }
             
-            let nameComponents = userName.components(separatedBy: " ")
-            guard nameComponents.count == 2 else {
-                return
-            }
+            print("Picture: \(picture)")
+           
             
-            let firstName = nameComponents[0]
-            let lastName = nameComponents[1]
+            UserDefaults.standard.setValue(userEmail, forKey: "email")
             
             DatabaseManager.shared.userExists(with: userEmail, complition: {exists in
                 if !exists {
                     let user = ChatAppUser(firstName: firstName, lastName: lastName, emailAddress: userEmail)
                     DatabaseManager.shared.insertUser(with: user, completion: {success in
-                        
+                        if success {
+                            print("User inserted successfully")
+                            guard let url = URL(string: pictureUrl) else {
+                                return
+                            }
+                            
+                            
+                            URLSession.shared.dataTask(with: url, completionHandler: {data, _, error in
+                                guard let data = data, error == nil else  {
+                                    print("Cannot download profile picture -\(String(describing: error))")
+                                    return
+                                }
+                                
+                                let filename = user.profilePictureUrl
+                                print("File name is -\(filename)")
+                                
+                                StorageManager.shared.uploadProfilePicture(with: data,
+                                                                           fileName: filename,
+                                                                           complition: {result in
+                                    switch result {
+                                   
+                                    case .success(let url):
+                                        UserDefaults.standard.set(url, forKey: "profile_picture_url")
+                                        print("Image fetched from facebook: \(url)")
+                                    case .failure(let error):
+                                        print("Cannot upload image from facebook - \(error)")
+                                    }
+                                    
+                                   
+                                })
+                            }).resume()
+                        }
+                        let credential = FacebookAuthProvider.credential(withAccessToken: token)
+                        FirebaseAuth.Auth.auth().signIn(with: credential, completion: {[weak self] authResult, error in
+                            guard let strongSelf = self, authResult != nil, error == nil else {
+                                if error != nil {
+                                    print("Login Failed with facebook credentials: \(String(describing: error))")
+                                }
+                                return
+                            }
+                            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+                        })
                     })
                 }
             })
-        })
-        
-        let credential = FacebookAuthProvider.credential(withAccessToken: token)
-        FirebaseAuth.Auth.auth().signIn(with: credential, completion: {[weak self] authResult, error in
-            guard let strongSelf = self, authResult != nil, error == nil else {
-                if error != nil {
-                    print("Login Failed with facebook credentials: \(String(describing: error))")
-                }
-                return
-            }
-            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+            
         })
     }
     
