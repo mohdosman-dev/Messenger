@@ -70,8 +70,9 @@ class ChatViewController: MessagesViewController {
         guard let email = UserDefaults.standard.value(forKey: "email")  as? String else {
             return nil
         }
+        let safeEmail = DatabaseManager.getSafeEmail(emailAddress: email)
         let sender = Sender(photoURL: "1",
-                            senderId: email,
+                            senderId: safeEmail,
                             displayName: "Mohammed Osman")
         return sender;
     } ()
@@ -116,6 +117,7 @@ class ChatViewController: MessagesViewController {
                 self?.messages = fetchedMessages
                 DispatchQueue.main.async {
                     self?.messagesCollectionView.reloadDataAndKeepOffset()
+                    self?.messagesCollectionView.scrollToLastItem()
                 }
             case .failure(let error):
                 print("Error while fetching messages: \(error)")
@@ -134,14 +136,14 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         
         
         
-        
+        // Create new conversation
+        let message = Message(sender: sender,
+                              messageId: messageId,
+                              sentDate: Date(),
+                              kind: .text(text))
         // Send message in convo
         if isNewConversation {
-            // Create new conversation
-            let message = Message(sender: sender,
-                                  messageId: messageId,
-                                  sentDate: Date(),
-                                  kind: .text(text))
+           
             let safeEmail = DatabaseManager.getSafeEmail(emailAddress: self.otherSenderEmail)
             DatabaseManager.shared.createNewConversation(with: safeEmail,
                                                          name: self.title ?? "User",
@@ -158,6 +160,23 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
             })
         } else {
             // append messeage to the collection
+            guard let conversationId = conversationId else {
+                return
+            }
+            guard let name = self.title else {
+                return
+            }
+            DatabaseManager.shared.sendMessage(to: conversationId,
+                                               otherUserEmail: self.otherSenderEmail,
+                                               name: name,
+                                               newMessage: message,
+                                               completion: {success in
+                if success {
+                    print("Message sent successfully")
+                } else {
+                    print("Failed to send message")
+                }
+            })
         }
     }
     
@@ -170,7 +189,9 @@ extension ChatViewController: InputBarAccessoryViewDelegate {
         
         let dateString = Self.dateFormatter.string(from: Date())
         
-        let uniqueId = "\(otherSenderEmail)_\(currentUserEmail)_\(dateString)"
+        let safeEmail = DatabaseManager.getSafeEmail(emailAddress: currentUserEmail)
+        
+        let uniqueId = "\(otherSenderEmail)_\(safeEmail)_\(dateString)"
         print("Unique ID: \(uniqueId)")
         return uniqueId
     }

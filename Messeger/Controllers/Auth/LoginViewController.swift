@@ -154,6 +154,27 @@ class LoginViewController: UIViewController {
             }
             
             UserDefaults.standard.setValue(email, forKey: "email")
+            let safeEmail = DatabaseManager.getSafeEmail(emailAddress: email)
+            DatabaseManager.shared.fetchDataFor(path: safeEmail,completion: {result in
+                switch result {
+                    
+                case .success(let data):
+                    //                    guard case let firstName != user["first_name"] as? String, let lastName != user["last_name"] as? String else {
+                    //                        return
+                    //
+                    //                    }
+                    guard let userData = data as? [String: Any],
+                          let firstName = userData["first_name"] as? String,
+                          let lastName = userData["last_name"] as? String else {
+                        return
+                    }
+                    
+                    UserDefaults.standard.set("\(firstName) \(lastName)", forKey: "name")
+                case .failure(let error):
+                    print("Error while fetch user - \(error)")
+                }
+            })
+//            UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
             let em = UserDefaults.standard.value(forKey: "email") as? String ?? "Not defiend"
             print("Login email is: \(em)")
             
@@ -235,6 +256,7 @@ extension LoginViewController: LoginButtonDelegate {
            
             
             UserDefaults.standard.setValue(userEmail, forKey: "email")
+            UserDefaults.standard.setValue("\(firstName) \(lastName)", forKey: "name")
             
             DatabaseManager.shared.userExists(with: userEmail, complition: {exists in
                 if !exists {
@@ -272,18 +294,20 @@ extension LoginViewController: LoginButtonDelegate {
                                 })
                             }).resume()
                         }
-                        let credential = FacebookAuthProvider.credential(withAccessToken: token)
-                        FirebaseAuth.Auth.auth().signIn(with: credential, completion: {[weak self] authResult, error in
-                            guard let strongSelf = self, authResult != nil, error == nil else {
-                                if error != nil {
-                                    print("Login Failed with facebook credentials: \(String(describing: error))")
-                                }
-                                return
-                            }
-                            strongSelf.navigationController?.dismiss(animated: true, completion: nil)
-                        })
+                        
                     })
                 }
+                
+                let credential = FacebookAuthProvider.credential(withAccessToken: token)
+                FirebaseAuth.Auth.auth().signIn(with: credential, completion: {[weak self] authResult, error in
+                    guard let strongSelf = self, authResult != nil, error == nil else {
+                        if error != nil {
+                            print("Login Failed with facebook credentials: \(String(describing: error))")
+                        }
+                        return
+                    }
+                    strongSelf.navigationController?.dismiss(animated: true, completion: nil)
+                })
             })
             
         })
