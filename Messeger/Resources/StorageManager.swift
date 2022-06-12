@@ -41,6 +41,31 @@ final class StorageManager {
         })
     }
     
+    
+    /// Upload user profile image and get url
+    public func uploadMessagePhoto(with data: Data, fileName: String,
+                                     complition: @escaping  StorageCompletion) {
+        storage.child("message_images/\(fileName)").putData(data, completion: {metadata, error in
+            guard error == nil else {
+                print("Error while uplaoding profile picture")
+                complition(.failure(StorageError.UploadError))
+                return
+            }
+            
+            self.storage.child("message_images/\(fileName)").downloadURL(completion: {url, error in
+                guard let url = url else {
+                    print("Error while get image download url")
+                    complition(.failure(StorageError.DownloadURLError))
+                    return
+                }
+                let urlString = url.absoluteString
+                print("The picutre placed in: \(urlString)")
+                complition(.success(urlString))
+            })
+        })
+    }
+    
+    
     public func getDownloadURL(for path:String, completion: @escaping (Result<URL, Error>) -> Void) {
         let refrence = self.storage.child(path)
         refrence.downloadURL(completion: {url, error in
